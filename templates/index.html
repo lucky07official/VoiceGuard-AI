@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceGuard AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="container">
+        <p class="tag">NEURAL NINJAS | KRITICAL HACKS 2026</p>
+        <h1>VoiceGuard AI</h1>
+        <p>Audio Analysis and Voice Safety Prototype</p>
+
+        <section class="card">
+            <h2>Analyze Audio</h2>
+            <form id="audioForm">
+                <label for="audio">Select a WAV audio file</label>
+                <input id="audio" type="file" name="audio"
+                       accept=".wav,audio/wav" required>
+                <button type="submit">Analyze Audio</button>
+            </form>
+
+            <div id="result" aria-live="polite"></div>
+
+            <p class="note">
+                This prototype extracts basic audio features.
+                It does not confirm whether a voice is real or AI-generated.
+            </p>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById("audioForm");
+        const result = document.getElementById("result");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            result.textContent = "Analyzing audio...";
+
+            try {
+                const response = await fetch("/analyze", {
+                    method: "POST",
+                    body: new FormData(form)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Analysis failed.");
+                }
+
+                result.replaceChildren();
+
+                const heading = document.createElement("h3");
+                heading.textContent = data.result;
+                result.appendChild(heading);
+
+                const details = document.createElement("pre");
+                details.textContent = JSON.stringify(data, null, 2);
+                result.appendChild(details);
+            } catch (error) {
+                result.textContent = error.message;
+            }
+        });
+    </script>
+</body>
+</html>
